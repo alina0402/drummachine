@@ -120,7 +120,8 @@ function DrumPad(props){
   return (
       <button className = 'drum-pad free'
               key = {props.keyCode} 
-              onClick = {props.onClick}>
+              id = {props.id}
+              onClick = {() => props.onClick(props.keyTrigger, props.id)}>
             <audio className='clip' id={props.keyTrigger} src={props.clip}></audio>
             {props.keyName}
       </button> 
@@ -134,6 +135,8 @@ class App extends React.Component{
             powerSide: LEFT,
             bankSide: LEFT,
             bank: bankOne,
+            currentInfo: '',
+            volume: 0.5,
         }
     };
 
@@ -148,10 +151,12 @@ class App extends React.Component{
             });
     };
 
-    handlePadClick(e){
-      console.log(e.target.children[0]);
-      let sound = e.target.children[0];
+
+    handlePadClick(id, descr){
+      this.setState({currentInfo: descr});
+      let sound = document.getElementById(id);
       sound.currentTime = 0;
+      sound.volume = this.state.volume;
       sound.play();
     }
   
@@ -163,7 +168,8 @@ class App extends React.Component{
                  keyName = {item.keyTrigger} 
                  keyTrigger = {item.keyTrigger} 
                  clip = {item.url} 
-                 onClick = {this.handlePadClick} />);
+                 id = {item.id}
+                 onClick = {(id, descr) => this.handlePadClick(id, descr)} />);
                  
         return(
             <div id = 'drum-machine' className = 'drum-machine'>
@@ -171,11 +177,18 @@ class App extends React.Component{
                     {pads}
                 </div>
                 <div className = 'managing-block'>
+                    <div className = "info-block">
+                    {this.state.currentInfo}
+                    </div>
                     <div className = 'trigger-block'>
                         <label htmlFor = 'power'>Power:</label>
                         <PowerTrigger id = "power" name = "power" side = {this.state.powerSide}  onClick = {() => this.handlePowerClick()}/>
                     </div>
-                    <input type="range" min="1" max="100" className = "slider" defaultValue="50" />
+                    <input type="range" 
+                          min="1" 
+                          max="100" 
+                          className = "slider" 
+                          defaultValue="50" onClick = {(e) => {this.setState({volume: e.target.value/100})}} />
                     <div className = 'trigger-block'>
                         <label htmlFor = 'bank'>Bank:</label>
                         <BankTrigger id = "bank" name = "bank" side = {this.state.bankSide}  onClick = {() => this.handleBankClick()}/>

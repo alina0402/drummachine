@@ -58,6 +58,19 @@ body {
   border: 1px solid #000;
 }
 
+.info-block{
+  display: flex;
+  width: 80%;
+  height: 1.5em;
+  background-color: rgba(128, 128, 128, 0.555);
+  border: 1px solid black;
+  flex-flow: row nowrap;
+  justify-content: center;
+  /* align-items: center; */
+  color: white;
+  font-weight: 800;
+}
+
 label{
   font-weight: 800;
   color: #000;
