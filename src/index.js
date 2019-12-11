@@ -117,10 +117,12 @@ function BankTrigger(props){
 }
 
 function DrumPad(props){
+  // const disabled = power ? "disabled" : "";
   return (
       <button className = 'drum-pad free'
               key = {props.keyCode} 
               id = {props.id}
+              disabled = {props.power}
               onClick = {() => props.onClick(props.keyTrigger, props.id)}>
             <audio className='clip' id={props.keyTrigger} src={props.clip}></audio>
             {props.keyName}
@@ -147,7 +149,7 @@ class App extends React.Component{
     handleBankClick(){
            this.setState({
              bankSide: this.state.bankSide === LEFT ? RIGHT : LEFT,
-             bank: this.state.bankSide === LEFT ? bankOne : bankTwo,
+             bank: this.state.bankSide === LEFT ? bankTwo : bankOne,
             });
     };
 
@@ -169,15 +171,16 @@ class App extends React.Component{
                  keyTrigger = {item.keyTrigger} 
                  clip = {item.url} 
                  id = {item.id}
+                 power = {this.state.powerSide === LEFT ? false : true}
                  onClick = {(id, descr) => this.handlePadClick(id, descr)} />);
                  
         return(
             <div id = 'drum-machine' className = 'drum-machine'>
-                <div id = 'display' className = 'display-block'>
+                <div className = 'display-block'>
                     {pads}
                 </div>
                 <div className = 'managing-block'>
-                    <div className = "info-block">
+                    <div className = "info-block" id = 'display' >
                     {this.state.currentInfo}
                     </div>
                     <div className = 'trigger-block'>
