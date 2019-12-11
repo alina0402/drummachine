@@ -100,8 +100,7 @@ const bankTwo = [{
 
 const LEFT = 'left';
 const RIGHT = 'right';
-const POWER = 'power';
-const BANK = 'bank';
+
 
 function PowerTrigger(props){
     return (
@@ -117,25 +116,55 @@ function BankTrigger(props){
     )
 }
 
+function DrumPad(props){
+  return (
+      <button className = 'drum-pad free'
+              key = {props.keyCode} 
+              onClick = {props.onClick}>
+            <audio className='clip' id={props.keyTrigger} src={props.clip}></audio>
+            {props.keyName}
+      </button> 
+  )
+}
+
 class App extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             powerSide: LEFT,
             bankSide: LEFT,
+            bank: bankOne,
         }
-    }
+    };
 
     handlePowerClick(){
         this.setState({powerSide: this.state.powerSide === LEFT ? RIGHT : LEFT});
-    }
+    };
 
     handleBankClick(){
-           this.setState({bankSide: this.state.bankSide === LEFT ? RIGHT : LEFT});
+           this.setState({
+             bankSide: this.state.bankSide === LEFT ? RIGHT : LEFT,
+             bank: this.state.bankSide === LEFT ? bankOne : bankTwo,
+            });
+    };
+
+    handlePadClick(e){
+      console.log(e.target.children[0]);
+      let sound = e.target.children[0];
+      sound.currentTime = 0;
+      sound.play();
     }
   
     render(){
-        const pads = bankOne.map((item) => <button className = 'drum-pad free' key = {item.keyCode}>{item.keyTrigger}</button>);  
+      
+      const pads = this.state.bank.map((item) => 
+          <DrumPad key = {item.keyCode} 
+                 keyCode = {item.keyCode} 
+                 keyName = {item.keyTrigger} 
+                 keyTrigger = {item.keyTrigger} 
+                 clip = {item.url} 
+                 onClick = {this.handlePadClick} />);
+                 
         return(
             <div id = 'drum-machine' className = 'drum-machine'>
                 <div id = 'display' className = 'display-block'>
@@ -146,7 +175,7 @@ class App extends React.Component{
                         <label htmlFor = 'power'>Power:</label>
                         <PowerTrigger id = "power" name = "power" side = {this.state.powerSide}  onClick = {() => this.handlePowerClick()}/>
                     </div>
-                    <input type="range" min="1" max="100" class = "slider" defaultValue="50" />
+                    <input type="range" min="1" max="100" className = "slider" defaultValue="50" />
                     <div className = 'trigger-block'>
                         <label htmlFor = 'bank'>Bank:</label>
                         <BankTrigger id = "bank" name = "bank" side = {this.state.bankSide}  onClick = {() => this.handleBankClick()}/>
