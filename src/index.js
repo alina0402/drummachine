@@ -101,7 +101,6 @@ const bankTwo = [{
 const LEFT = 'left';
 const RIGHT = 'right';
 
-
 function PowerTrigger(props){
     return (
         <button className = {'trigger ' + props.side + '-trigger'} 
@@ -116,27 +115,60 @@ function BankTrigger(props){
     )
 }
 
-function DrumPad(props){
-  // const disabled = power ? "disabled" : "";
-  return (
-      <button className = 'drum-pad free'
-              key = {props.keyCode} 
-              id = {props.id}
-              disabled = {props.power}
-              onClick = {() => props.onClick(props.keyTrigger, props.id)}>
-            <audio className='clip' id={props.keyTrigger} src={props.clip}></audio>
-            {props.keyName}
+class DrumPad extends React.Component{
+  constructor(props){
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyPress);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyPress);
+  };
+
+  handleKeyPress(e) {
+    if(this.props.power && e.keyCode === this.props.keyNum)
+      this.handleClick();
+  };
+
+  handleClick(){
+    if(!this.props.disabled){
+      document.getElementById('display').innerHTML = this.props.id;
+      let sound = document.getElementById(this.props.keyTrigger);
+      sound.currentTime = 0;
+      sound.volume = this.props.volume;
+      sound.play();
+    }
+  }
+
+  render(){
+    return (
+      <button className = 'drum-pad'
+              key = {this.props.keyNum} 
+              keyNum = {this.props.keyNum}
+              id = {this.props.id}
+              disabled = {!this.props.power}
+              onClick = {this.handleClick}
+              onKeyDown = {this.handleKeyPress} 
+              >
+            <audio className='clip' id={this.props.keyTrigger} src={this.props.clip}></audio>
+            {this.props.keyName}
       </button> 
-  )
+    )
+  }
 }
 
 class App extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            powerSide: LEFT,
+            powerSide: RIGHT,
             bankSide: LEFT,
-            bank: bankOne,
+            bank: [...bankOne],
             currentInfo: '',
             volume: 0.5,
         }
@@ -149,38 +181,31 @@ class App extends React.Component{
     handleBankClick(){
            this.setState({
              bankSide: this.state.bankSide === LEFT ? RIGHT : LEFT,
-             bank: this.state.bankSide === LEFT ? bankTwo : bankOne,
+             bank: this.state.bankSide === LEFT ? [...bankTwo] : [...bankOne],
             });
     };
 
 
-    handlePadClick(id, descr){
-      this.setState({currentInfo: descr});
-      let sound = document.getElementById(id);
-      sound.currentTime = 0;
-      sound.volume = this.state.volume;
-      sound.play();
-    }
-  
     render(){
       
       const pads = this.state.bank.map((item) => 
           <DrumPad key = {item.keyCode} 
-                 keyCode = {item.keyCode} 
+                 keyNum = {item.keyCode} 
                  keyName = {item.keyTrigger} 
                  keyTrigger = {item.keyTrigger} 
                  clip = {item.url} 
                  id = {item.id}
+                 volume = {this.state.volume}
                  power = {this.state.powerSide === LEFT ? false : true}
-                 onClick = {(id, descr) => this.handlePadClick(id, descr)} />);
+                 />);
                  
         return(
             <div id = 'drum-machine' className = 'drum-machine'>
-                <div className = 'display-block'>
+                <div className = 'display-block' id = 'display-block'>
                     {pads}
                 </div>
                 <div className = 'managing-block'>
-                    <div className = "info-block" id = 'display' >
+                    <div className = "info-block" id = 'display'>
                     {this.state.currentInfo}
                     </div>
                     <div className = 'trigger-block'>
@@ -202,7 +227,10 @@ class App extends React.Component{
     }
 }
 
-
 ReactDOM.render(<App />, document.getElementById('root'));
+
+
+
+
 
 
